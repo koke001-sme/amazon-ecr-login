@@ -1,6 +1,7 @@
 const core = require('@actions/core');
 const exec = require('@actions/exec');
 const aws = require('aws-sdk');
+const proxy = require('https-proxy-agent');
 
 const ECR_LOGIN_GITHUB_ACTION_USER_AGENT = 'amazon-ecr-login-for-github-actions';
 const ECR_PUBLIC_REGISTRY_URI = 'public.ecr.aws';
@@ -70,11 +71,36 @@ async function getEcrPublicAuthTokenWrapper(authTokenRequest) {
   };
 }
 
+function configureProxy(proxyServer) {
+  const proxyFromEnv = process.env.HTTP_PROXY || process.env.http_proxy;
+
+  if (proxyFromEnv || proxyServer) {
+    let proxyToSet = null;
+
+    if (proxyServer){
+      console.log(`Setting proxy from actions input: ${proxyServer}`);
+      proxyToSet = proxyServer;
+    } else {
+      console.log(`Setting proxy from environment: ${proxyFromEnv}`);
+      proxyToSet = proxyFromEnv;
+    }
+
+    aws.config.update({
+      httpOptions: { agent: proxy(proxyToSet) }
+    });
+  }
+}
+
 async function run() {
   // Get inputs
   const skipLogout = core.getInput(INPUTS.skipLogout, { required: false }).toLowerCase() === 'true';
   const registries = core.getInput(INPUTS.registries, { required: false });
   const registryType = core.getInput(INPUTS.registryType, { required: false }).toLowerCase() || REGISTRY_TYPES.private;
+
+  const proxyServer = core.getInput('http-proxy', { required: false });
+
+  // Configures proxy
+  configureProxy(proxyServer);
 
   const registryUriState = [];
 
