@@ -102,7 +102,7 @@ async function run() {
   const proxyServer = core.getInput('http-proxy', { required: false });
 
   // Configures proxy
-  configureProxy(proxyServer);
+ // configureProxy(proxyServer);
 
   const registryUriState = [];
 
