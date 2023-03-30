@@ -73,6 +73,7 @@ async function getEcrPublicAuthTokenWrapper(authTokenRequest) {
 
 function configureProxy(proxyServer) {
   const proxyFromEnv = process.env.HTTP_PROXY || process.env.http_proxy;
+  console.log('Proxy setting running');
 
   if (proxyFromEnv || proxyServer) {
     let proxyToSet = null;
@@ -84,6 +85,7 @@ function configureProxy(proxyServer) {
       console.log(`Setting proxy from environment: ${proxyFromEnv}`);
       proxyToSet = proxyFromEnv;
     }
+    console.log({proxyToSet});
 
     aws.config.update({
       httpOptions: { agent: proxy(proxyToSet) }
