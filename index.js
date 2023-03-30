@@ -94,6 +94,7 @@ function configureProxy(proxyServer) {
 }
 
 async function run() {
+  throw new Error('Test error');
   // Get inputs
   const skipLogout = core.getInput(INPUTS.skipLogout, { required: false }).toLowerCase() === 'true';
   const registries = core.getInput(INPUTS.registries, { required: false });
